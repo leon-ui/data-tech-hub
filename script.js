@@ -2,31 +2,57 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("Leon's Hub Loaded");
 
     // Navigation Logic
-    const navItems = document.querySelectorAll('.nav-item');
-    const sections = document.querySelectorAll('.view-section');
+    // Navigation Logic
+    const handleNavigation = (targetId) => {
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.view-section');
 
-    navItems.forEach(item => {
+        // Update Nav State (Sidebar)
+        navItems.forEach(nav => {
+            if (nav.getAttribute('data-target') === targetId) {
+                nav.classList.add('active');
+            } else {
+                nav.classList.remove('active');
+            }
+        });
+
+        // Update View State
+        sections.forEach(section => {
+            if (section.id === targetId) {
+                section.style.display = 'block';
+                // Scroll to top of section logic if needed
+            } else {
+                section.style.display = 'none';
+            }
+        });
+
+        // Scroll to top of main content
+        document.querySelector('.main-content').scrollTop = 0;
+
+        // Animate Footer (Pop effect)
+        const footer = document.querySelector('.site-footer');
+        if (footer) {
+            footer.style.animation = 'none';
+            footer.offsetHeight; /* trigger reflow */
+            footer.style.animation = 'fadeIn 0.4s ease';
+        }
+    };
+
+    // Sidebar Clciks
+    document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
-
             const targetId = item.getAttribute('data-target');
+            handleNavigation(targetId);
+        });
+    });
 
-            // Update Nav State
-            navItems.forEach(nav => nav.classList.remove('active'));
-            item.classList.add('active');
-
-            // Update View State
-            sections.forEach(section => {
-                if (section.id === targetId) {
-                    section.style.display = 'block';
-                    // Trigger reflow/animation if needed
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-
-            // Scroll to top of main content
-            document.querySelector('.main-content').scrollTop = 0;
+    // In-Page Navigation Triggers (e.g. from About Me to Shop)
+    document.querySelectorAll('.nav-trigger').forEach(trigger => {
+        trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = trigger.getAttribute('data-target');
+            handleNavigation(targetId);
         });
     });
 
@@ -52,33 +78,35 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
-    // Timeline Drag to Scroll
-    const slider = document.querySelector('.timeline-container');
-    let isDown = false;
-    let startX;
-    let scrollLeft;
+    // Generic Scroll Logic
+    const setupHorizontalScroll = (containerClass, leftBtnClass, rightBtnClass) => {
+        const slider = document.querySelector(containerClass);
+        if (!slider) return;
 
-    if (slider) {
-        // Mouse Wheel Scroll
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        // Mouse Wheel
         slider.addEventListener('wheel', (e) => {
             e.preventDefault();
             slider.scrollLeft += e.deltaY * 3;
         });
 
-        // Arrow Button Logic
-        const leftBtn = document.querySelector('.scroll-btn.left');
-        const rightBtn = document.querySelector('.scroll-btn.right');
+        // Buttons
+        const leftBtn = document.querySelector(leftBtnClass);
+        const rightBtn = document.querySelector(rightBtnClass);
 
         if (leftBtn && rightBtn) {
             leftBtn.addEventListener('click', () => {
                 slider.scrollLeft -= 300;
             });
-
             rightBtn.addEventListener('click', () => {
                 slider.scrollLeft += 300;
             });
         }
 
+        // Drag to Scroll
         slider.addEventListener('mousedown', (e) => {
             isDown = true;
             slider.classList.add('active');
@@ -100,8 +128,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isDown) return;
             e.preventDefault();
             const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 2; // Scroll-fast
+            const walk = (x - startX) * 2;
             slider.scrollLeft = scrollLeft - walk;
         });
-    }
+    };
+
+    // Initialize Scroll Areas
+    setupHorizontalScroll('.timeline-container', '.scroll-btn.left', '.scroll-btn.right');
+    setupHorizontalScroll('.metaphor-container', '#metaphor-scroll-left', '#metaphor-scroll-right');
 });

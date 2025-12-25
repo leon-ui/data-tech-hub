@@ -49,22 +49,45 @@
             <!-- HOME / ABOUT ME View -->
             <section id="home" class="view-section active">
                 <div class="profile-header">
-                    <div class="profile-pic-placeholder">
-                        <i class="fas fa-user"></i>
-                    </div>
+                    <img src="profile.jpg" alt="Leon" class="profile-pic">
                     <h1>Hi, I'm Leon.</h1>
                     <p class="bio role-gradient">Performance Marketing & Automation Analyst</p>
                     <p class="bio" style="margin-top: 15px;">I simplify complex tech topics and build tools to help you
                         succeed.</p>
                 </div>
+
+                <!-- NEW: By The Numbers Bar -->
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <span class="stat-num">2+</span>
+                        <span class="stat-label">Years Exp.</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">50+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-num">100%</span>
+                        <span class="stat-label">Data Driven</span>
+                    </div>
+                </div>
+                <!-- Navigation Hook -->
+                <div class="section-hook">
+                    <p>See what clients say <i class="fas fa-arrow-right"></i> <a href="#" class="nav-trigger"
+                            data-target="testimonials">Read Testimonials 🗣️</a></p>
+                </div>
                 <div class="about-details">
                     <h3>What I Do</h3>
-                    <p>I create educational content at the intersection of data, tech, and productivity.</p>
+                    <p>I create educational content at the intersection of data, tech, marketing, business, and
+                        productivity.</p>
                     <p style="margin-top: 15px;">Whether you're trying to break into the industry or optimise your
                         current workflow, I’m here to help. I’ve navigated the maze of the UK education system, survived
                         the grueling job hunt (without any university internships), and thrived in high-pressure roles.
                         Now, I’m sharing my playbook to help
-                        you minimise the trial and error and fast-track your career.</p>
+                        you minimise the trial and error and fast-track your career. <a href="#" class="nav-trigger"
+                            data-target="content">Watch my latest videos & articles 📺 <i
+                                class="fas fa-arrow-right"></i></a>
+                    </p>
                     <p style="margin-top: 15px; font-weight: 600;">Here is the path I took to get here:</p>
                 </div>
 
@@ -117,6 +140,199 @@
                     <button class="scroll-btn right"><i class="fas fa-chevron-right"></i></button>
                 </div>
 
+                <!-- Tech Stack Section -->
+                <div class="tech-stack-section">
+                    <h3>My Tech Stack</h3>
+
+                    <!-- Restaurant Metaphor Section -->
+                    <div class="restaurant-metaphor">
+                        <p class="metaphor-intro">
+                            "I like to think of my data stack as a <span>restaurant</span>. Every day I am cooking up
+                            tools, systems, and
+                            processes that help teams make smarter decisions."
+                        </p>
+
+                        <div class="metaphor-wrapper">
+                            <button class="scroll-btn left" id="metaphor-scroll-left"><i
+                                    class="fas fa-chevron-left"></i></button>
+                            <div class="metaphor-container">
+                                <div class="metaphor-track">
+                                    <!-- Fivetran -->
+                                    <div class="metaphor-card">
+                                        <div class="card-icon loading-bay">
+                                            <i class="fas fa-truck-loading"></i>
+                                        </div>
+                                        <div class="card-content">
+                                            <h4>Fivetran</h4>
+                                            <span class="role-badge">The Loading Bay</span>
+                                            <p>Ingredients (data) arrive from external sources: databases, APIs, Google
+                                                Ads, CRM platforms. This keeps everything fresh.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Snowflake -->
+                                    <div class="metaphor-card">
+                                        <div class="card-icon pantry">
+                                            <i class="fas fa-warehouse"></i>
+                                        </div>
+                                        <div class="card-content">
+                                            <h4>Snowflake</h4>
+                                            <span class="role-badge">The Pantry</span>
+                                            <p>All data, raw and prepared, is stored here. Keeps everything organised,
+                                                scalable, and ready to use.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- dbt -->
+                                    <div class="metaphor-card">
+                                        <div class="card-icon kitchen">
+                                            <i class="fas fa-fire-burner"></i>
+                                            <div class="steam-animation">
+                                                <span></span>
+                                                <span></span>
+                                                <span></span>
+                                            </div>
+                                        </div>
+                                        <div class="card-content">
+                                            <h4>dbt & SQL</h4>
+                                            <span class="role-badge">The Kitchen</span>
+                                            <p>The heat (SQL) turns raw ingredients into clean, structured, easy to
+                                                consume data models.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- ThoughtSpot -->
+                                    <div class="metaphor-card">
+                                        <div class="card-icon dining">
+                                            <i class="fas fa-utensils"></i>
+                                        </div>
+                                        <div class="card-content">
+                                            <h4>ThoughtSpot</h4>
+                                            <span class="role-badge">The Dining Area</span>
+                                            <p>Data is plated and served. Models turn into insights and visualisations
+                                                teams can instantly consume.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- GCP & Python -->
+                                    <div class="metaphor-card">
+                                        <div class="card-icon automation">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="card-content">
+                                            <h4>Google Cloud & Python</h4>
+                                            <span class="role-badge">The Automation System</span>
+                                            <p>The conveyor belt. Schedules, orchestrates, and moves information back
+                                                out to tools like Google Sheets.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="scroll-btn right" id="metaphor-scroll-right"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="stack-divider">
+                        <div class="divider-line"></div>
+                        <div class="divider-icon">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Full Toolkit</span>
+                        </div>
+                        <div class="divider-line"></div>
+                    </div>
+
+                    <div class="tech-grid">
+                        <div class="tech-item">
+                            <i class="fab fa-python"></i>
+                            <span>Python</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-database"></i>
+                            <span>SQL</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-google"></i>
+                            <span>Google Cloud</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Excel</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-cube"></i>
+                            <span>dbt</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>ThoughtSpot</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Fivetran</span>
+                        </div>
+                        <div class="tech-item">
+                            <i class="fab fa-github"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Data Philosophy Section (Inside Tech Stack) -->
+                    <div class="philosophy-section">
+                        <h3>My Data Philosophy</h3>
+                        <div class="philosophy-grid">
+                            <div class="phil-card">
+                                <i class="fas fa-feather-alt"></i>
+                                <h4>Simplicity</h4>
+                                <p>"If it's too complex, it breaks."</p>
+                            </div>
+                            <div class="phil-card">
+                                <i class="fas fa-bolt"></i>
+                                <h4>Action</h4>
+                                <p>"Data without action is noise."</p>
+                            </div>
+                            <div class="phil-card">
+                                <i class="fas fa-cogs"></i>
+                                <h4>Automation</h4>
+                                <p>"Automate the boring stuff."</p>
+                            </div>
+                        </div>
+                        <!-- Navigation Hook -->
+                        <div class="section-hook">
+                            <p>I build tools with these values and technologies above. Download my <strong>Free
+                                    Transcriber</strong> & more <i class="fas fa-arrow-right"></i> <a href="#"
+                                    class="nav-trigger" data-target="shop">Visit Shop 🛍️</a></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Beyond The Screen Section -->
+                <!-- NEW: Beyond The Screen Section (Monitor UI) -->
+                <div class="monitor-wrapper">
+                    <div class="monitor-bezel">
+                        <div class="monitor-camera"></div>
+                        <div class="monitor-screen">
+                            <div class="personal-section">
+                                <h3>Beyond The Screen</h3>
+                                <p>When I'm not wrangling data pipelines, I'm usually:</p>
+                                <div class="hobby-badges">
+                                    <span class="hobby-badge"><i class="fas fa-running"></i> Sports</span>
+                                    <span class="hobby-badge"><i class="fas fa-gamepad"></i> Gaming</span>
+                                    <span class="hobby-badge"><i class="fas fa-plane"></i> Travelling</span>
+                                </div>
+                                <!-- Navigation Hook -->
+                                <div class="section-hook">
+                                    <p>Let's solve your data problems <i class="fas fa-arrow-right"></i> <a href="#"
+                                            class="nav-trigger" data-target="consulting">Book Data Consulting 🤝</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="monitor-stand"></div>
+                    <div class="monitor-base"></div>
+                </div>
+
             </section>
 
             <!-- CONTENT FEED View -->
@@ -166,6 +382,18 @@
                     </div>
                 </div>
             </section>
+
+            </section>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <p>&copy; 2025 Leon's Data Tech Hub. All rights reserved.</p>
+                <p style="margin-top: 5px; font-size: 0.8rem;">Love this site? <a href="#" class="nav-trigger"
+                        data-target="consulting"
+                        style="color: #fff; text-decoration: none; font-size: inherit; font-weight: normal;">Get a
+                        Website Like This 🎨</a> to
+                    promote your brand.</p>
+            </footer>
 
         </main>
     </div>

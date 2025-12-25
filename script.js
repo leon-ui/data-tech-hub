@@ -52,4 +52,56 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+    // Timeline Drag to Scroll
+    const slider = document.querySelector('.timeline-container');
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    if (slider) {
+        // Mouse Wheel Scroll
+        slider.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            slider.scrollLeft += e.deltaY * 3;
+        });
+
+        // Arrow Button Logic
+        const leftBtn = document.querySelector('.scroll-btn.left');
+        const rightBtn = document.querySelector('.scroll-btn.right');
+
+        if (leftBtn && rightBtn) {
+            leftBtn.addEventListener('click', () => {
+                slider.scrollLeft -= 300;
+            });
+
+            rightBtn.addEventListener('click', () => {
+                slider.scrollLeft += 300;
+            });
+        }
+
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true;
+            slider.classList.add('active');
+            startX = e.pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener('mouseleave', () => {
+            isDown = false;
+            slider.classList.remove('active');
+        });
+
+        slider.addEventListener('mouseup', () => {
+            isDown = false;
+            slider.classList.remove('active');
+        });
+
+        slider.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 2; // Scroll-fast
+            slider.scrollLeft = scrollLeft - walk;
+        });
+    }
 });

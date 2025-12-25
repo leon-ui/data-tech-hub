@@ -198,6 +198,22 @@ body {
     color: var(--text-muted);
 }
 
+.role-gradient {
+    background: linear-gradient(120deg, #ffffff, #888888, #ffffff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+    animation: shine 5s linear infinite;
+}
+
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
 .about-details h3 {
     margin-bottom: 15px;
     color: #fff;
@@ -206,6 +222,158 @@ body {
 .about-details p {
     color: var(--text-muted);
     font-size: 1.1rem;
+}
+
+.timeline-wrapper {
+    position: relative;
+    margin-top: 20px;
+}
+
+.timeline-container {
+    padding: 20px 0;
+    width: 100%;
+    overflow-x: auto;
+    cursor: grab;
+    /* Hide scrollbar for aesthetics */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    user-select: none;
+    /* Prevent text selection */
+    scroll-behavior: smooth;
+}
+
+.timeline-container:active {
+    cursor: grabbing;
+}
+
+.timeline-container::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar for Chrome/Safari/Opera */
+}
+
+.scroll-btn {
+    position: absolute;
+    top: -45px;
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s;
+}
+
+.scroll-btn:hover {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+}
+
+.scroll-btn.left {
+    right: 50px;
+}
+
+.scroll-btn.right {
+    right: 0;
+}
+
+.timeline-container:active {
+    cursor: grabbing;
+}
+
+.timeline-container::-webkit-scrollbar {
+    display: none;
+}
+
+.timeline-track {
+    display: flex;
+    gap: 20px;
+    padding: 0 5px;
+    min-width: min-content;
+}
+
+.timeline-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 25px;
+    min-width: 260px;
+    max-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.timeline-item:hover {
+    transform: translateY(-5px);
+    border-color: #666;
+}
+
+.timeline-item::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: -21px;
+    width: 20px;
+    height: 1px;
+    background: var(--border-color);
+    display: block;
+}
+
+.timeline-item:last-child::after {
+    display: none;
+}
+
+.timeline-item .year {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 20px;
+    width: fit-content;
+    border: 1px solid #333;
+}
+
+.timeline-item.active .year {
+    color: #000;
+    background: #fff;
+    border-color: #fff;
+}
+
+.timeline-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: contain;
+    background: #fff;
+    padding: 4px;
+    margin-bottom: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.timeline-item .role {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.4;
+}
+
+.timeline-item .desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
 }
 
 /* Content Feed (Vertical) */

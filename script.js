@@ -136,4 +136,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize Scroll Areas
     setupHorizontalScroll('.timeline-container', '.scroll-btn.left', '.scroll-btn.right');
     setupHorizontalScroll('.metaphor-container', '#metaphor-scroll-left', '#metaphor-scroll-right');
+    setupHorizontalScroll('.philosophy-grid', '#phil-scroll-left', '#phil-scroll-right');
 });

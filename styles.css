@@ -235,7 +235,7 @@ body {
 
 .timeline-wrapper {
     position: relative;
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .timeline-container {
@@ -263,12 +263,13 @@ body {
 
 .scroll-btn {
     position: absolute;
-    top: -45px;
-    background: transparent;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--card-bg);
     border: 1px solid var(--border-color);
     color: var(--text-muted);
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -276,20 +277,26 @@ body {
     cursor: pointer;
     z-index: 10;
     transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0.5;
+    /* Semi-transparent by default */
 }
 
 .scroll-btn:hover {
     background: #fff;
     color: #000;
     border-color: #fff;
+    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+    /* Fully opaque on hover */
 }
 
 .scroll-btn.left {
-    right: 50px;
+    left: -15px;
 }
 
 .scroll-btn.right {
-    right: 0;
+    right: -15px;
 }
 
 .timeline-container:active {
@@ -734,6 +741,49 @@ body {
     .consulting-pricing {
         text-align: center;
     }
+
+    /* Fix Tech Grid on Mobile */
+    .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Fix Monitor Height on Mobile */
+    .personal-section {
+        padding: 5px 2px 2px 2px;
+        /* Minimal bottom padding */
+    }
+
+    .monitor-bezel {
+        padding: 5px 5px 15px 5px;
+    }
+
+    .personal-section h3 {
+        font-size: 1rem;
+        margin-bottom: 5px;
+    }
+
+    .personal-section p {
+        margin-bottom: 10px;
+        font-size: 0.85rem;
+        line-height: 1.3;
+    }
+
+    .hobby-badges {
+        margin-bottom: 5px;
+        /* Tighter gap to link */
+        gap: 8px;
+    }
+
+    .monitor-stand {
+        height: 20px;
+        /* Shorten stand */
+    }
+
+    /* Fix Footer Obscured by Mobile UI */
+    .site-footer {
+        padding-bottom: 120px;
+        /* Extra space for mobile address bar */
+    }
 }
 
 /* Restaurant Metaphor Styles */
@@ -748,7 +798,7 @@ body {
     font-size: 1.2rem;
     color: var(--text-muted);
     font-style: italic;
-    margin-bottom: 25px;
+    margin-bottom: 50px;
     /* Reduced from 50px */
     text-align: center;
     max-width: 800px;
@@ -1112,7 +1162,7 @@ body {
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     padding-bottom: 2px;
     transition: all 0.2s;
-    margin-left: 5px;
+    /* margin-left: 5px; Removed to fix indentation when at start of line */
 }
 
 .nav-trigger:hover {
@@ -1122,6 +1172,7 @@ body {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
+/* 2. Philosophy Section */
 /* 2. Philosophy Section */
 .philosophy-section {
     margin-top: 60px;
@@ -1133,10 +1184,64 @@ body {
     color: #fff;
 }
 
+.philosophy-wrapper {
+    position: relative;
+    margin: 0 auto;
+}
+
+/* Default Desktop: Grid, No Buttons */
 .philosophy-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
+}
+
+.philosophy-wrapper .scroll-btn {
+    display: none;
+    /* Hide buttons on desktop */
+}
+
+/* Mobile: Carousel Mode */
+@media (max-width: 1200px) {
+    .philosophy-grid {
+        display: flex;
+        /* Switch to Flex */
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        gap: 20px;
+        padding: 10px 5px;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        /* Firefox */
+        -ms-overflow-style: none;
+        /* IE */
+    }
+
+    .philosophy-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .phil-card {
+        min-width: 260px;
+        /* Fixed width for carousel */
+        scroll-snap-align: center;
+    }
+
+    /* Show buttons on mobile if needed, or rely on swipe */
+    /* Let's show buttons to match user preference for arrows */
+    .philosophy-wrapper .scroll-btn {
+        display: flex;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .philosophy-wrapper .scroll-btn.left {
+        left: -15px;
+    }
+
+    .philosophy-wrapper .scroll-btn.right {
+        right: -15px;
+    }
 }
 
 .phil-card {

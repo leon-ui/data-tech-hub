@@ -37,13 +37,25 @@ def transcribe_audio():
         # segments is a generator, so we iterate to get result
         segments, info = model.transcribe(temp_path, beam_size=1)
         
-        # Combine all segments into one text
-        text = "".join([segment.text for segment in segments]) 
+        from flask import Response, stream_with_context
+
+        def generate():
+            try:
+                for segment in segments:
+                    yield segment.text
+                # Cleanup after generation is done
+                os.remove(temp_path)
+            except Exception as e:
+                print(f"Streaming error: {e}")
+                # We can't really change the status code now, but we can log it
+                # or yield an error marker if we defined a protocol.
+                # For now, just stop.
+                try: 
+                    os.remove(temp_path)
+                except: 
+                    pass
         
-        # Clean up
-        os.remove(temp_path)
-        
-        return jsonify({'text': text.strip()})
+        return Response(stream_with_context(generate()), mimetype='text/plain')
 
     except Exception as e:
         print(f"Transcription error: {e}")

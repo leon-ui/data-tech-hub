@@ -336,13 +336,27 @@ const init = () => {
                     throw new Error(error.error || 'Server Error');
                 }
 
-                const data = await response.json();
-
-                // Show Result
+                // Show Result area immediately
                 progressWrapper.style.display = 'none';
                 resultArea.style.display = 'block';
-                transcriptText.value = data.text;
-                transcribeBtn.style.display = 'block'; // Allow retry
+                transcribeBtn.style.display = 'none'; // Keep hidden until done
+                transcriptText.value = ''; // Clear previous
+
+                // Read Stream
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    transcriptText.value += chunk;
+                    // Auto-scroll to bottom
+                    transcriptText.scrollTop = transcriptText.scrollHeight;
+                }
+
+                transcribeBtn.style.display = 'block'; // Allow retry/new upload
 
             } catch (err) {
                 console.error(err);

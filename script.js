@@ -401,13 +401,13 @@ const init = () => {
         transcribeBtn.addEventListener('click', async () => {
             if (!currentFile) return;
 
-            // Check audio duration (10 min limit for browser version)
-            const MAX_DURATION_SECONDS = 600; // 10 minutes
+            // Check audio duration (5 min limit for browser version)
+            const MAX_DURATION_SECONDS = 300; // 5 minutes
             const audioDuration = await getAudioDuration(currentFile);
 
-            if (audioDuration > MAX_DURATION_SECONDS) { // 10 minutes
+            if (audioDuration > MAX_DURATION_SECONDS) { // 5 minutes
                 const minutes = Math.round(audioDuration / 60);
-                alert(`This audio is ~${minutes} minutes long.\n\nThe browser version is strictly limited to 10 minutes.\n\n🚀 Download the Pro App for unlimited transcription!`);
+                alert(`This audio is ~${minutes} minutes long.\n\nThe browser version is limited to 5 minutes for optimal performance.\n\n🚀 Download the Pro App for unlimited transcription!`);
 
                 // Clear file
                 currentFile = null; // Clear currentFile reference

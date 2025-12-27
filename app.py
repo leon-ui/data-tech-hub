@@ -35,7 +35,7 @@ def transcribe_audio():
         
         # Transcribe using faster-whisper
         # segments is a generator, so we iterate to get result
-        segments, info = model.transcribe(temp_path, beam_size=5)
+        segments, info = model.transcribe(temp_path, beam_size=1)
         
         # Combine all segments into one text
         text = "".join([segment.text for segment in segments]) 

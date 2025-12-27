@@ -9,8 +9,17 @@ sys.stdout = sys.stdout
 
 app = Flask(__name__, static_folder='.')
 
+# Configure max upload size to 500MB
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB
+
 # Enable CORS for all routes (allows cross-origin requests)
 CORS(app)
+
+# Simple test endpoint to verify POST works
+@app.route('/test-post', methods=['POST', 'GET'])
+def test_post():
+    print(f"TEST ENDPOINT HIT: {request.method}", flush=True)
+    return jsonify({'status': 'ok', 'method': request.method})
 
 # Log every request for debugging
 @app.before_request

@@ -62,6 +62,129 @@ def index():
     """Serve the main index.html page."""
     return send_from_directory('.', 'index.html')
 
+# Storage for chunked uploads (in-memory for simplicity on free tier)
+upload_chunks = {}
+
+@app.route('/upload-chunk', methods=['POST'])
+def upload_chunk():
+    """Receive a chunk of audio data."""
+    try:
+        data = request.get_json()
+        upload_id = data.get('uploadId')
+        chunk_index = data.get('chunkIndex')
+        total_chunks = data.get('totalChunks')
+        chunk_data = data.get('data')
+        
+        if not all([upload_id, chunk_index is not None, total_chunks, chunk_data]):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        print(f"Received chunk {chunk_index + 1}/{total_chunks} for upload {upload_id}", flush=True)
+        
+        # Initialize storage for this upload if needed
+        if upload_id not in upload_chunks:
+            upload_chunks[upload_id] = {'chunks': {}, 'total': total_chunks}
+        
+        # Store chunk
+        upload_chunks[upload_id]['chunks'][chunk_index] = chunk_data
+        
+        # Check if all chunks received
+        received = len(upload_chunks[upload_id]['chunks'])
+        
+        return jsonify({
+            'status': 'ok',
+            'received': received,
+            'total': total_chunks,
+            'complete': received == total_chunks
+        })
+        
+    except Exception as e:
+        print(f"Chunk upload error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/process-upload', methods=['POST'])
+def process_upload():
+    """Process a completed chunked upload."""
+    import base64
+    
+    try:
+        data = request.get_json()
+        upload_id = data.get('uploadId')
+        
+        if upload_id not in upload_chunks:
+            return jsonify({'error': 'Upload not found'}), 404
+        
+        upload = upload_chunks[upload_id]
+        
+        # Check if complete
+        if len(upload['chunks']) != upload['total']:
+            return jsonify({'error': f"Upload incomplete: {len(upload['chunks'])}/{upload['total']}"}), 400
+        
+        # Reassemble chunks
+        print(f"Reassembling {upload['total']} chunks...", flush=True)
+        full_base64 = ''.join([upload['chunks'][i] for i in range(upload['total'])])
+        
+        # Decode and save
+        audio_bytes = base64.b64decode(full_base64)
+        print(f"Received complete audio: {len(audio_bytes) / 1024 / 1024:.2f}MB", flush=True)
+        
+        fd, temp_path = tempfile.mkstemp(suffix='.wav')
+        with os.fdopen(fd, 'wb') as tmp:
+            tmp.write(audio_bytes)
+        
+        # Clean up storage
+        del upload_chunks[upload_id]
+        
+        # Now transcribe
+        if model is None:
+            return jsonify({'error': 'Model not loaded'}), 500
+        
+        from flask import Response, stream_with_context
+        import threading
+        import queue
+
+        result_queue = queue.Queue()
+        
+        def transcribe_worker():
+            try:
+                segments, info = model.transcribe(temp_path, beam_size=1)
+                for segment in segments:
+                    result_queue.put(('segment', segment.text))
+                result_queue.put(('done', None))
+            except Exception as e:
+                result_queue.put(('error', str(e)))
+            finally:
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
+
+        def generate():
+            worker = threading.Thread(target=transcribe_worker)
+            worker.start()
+            
+            yield "⏳ Processing...\n"
+            
+            while True:
+                try:
+                    msg_type, data = result_queue.get(timeout=5)
+                    if msg_type == 'segment':
+                        yield data
+                    elif msg_type == 'done':
+                        break
+                    elif msg_type == 'error':
+                        yield f"\n❌ Error: {data}"
+                        break
+                except queue.Empty:
+                    yield " "
+            
+            worker.join(timeout=1)
+        
+        return Response(stream_with_context(generate()), mimetype='text/plain')
+        
+    except Exception as e:
+        print(f"Process upload error: {e}", flush=True)
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
     """Handle audio file uploads and transcription."""

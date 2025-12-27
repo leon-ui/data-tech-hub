@@ -451,18 +451,47 @@ const init = () => {
                         .reduce((data, byte) => data + String.fromCharCode(byte), '')
                 );
 
-                console.log(`Uploading ${(base64Audio.length / 1024 / 1024).toFixed(2)}MB base64...`);
+                console.log(`Total data: ${(base64Audio.length / 1024 / 1024).toFixed(2)}MB base64`);
 
-                // Send as JSON (more reliable than multipart on some proxies)
+                // CHUNKED UPLOAD: Split into 300KB chunks to avoid proxy limits
+                const CHUNK_SIZE = 300 * 1024; // 300KB per chunk
+                const totalChunks = Math.ceil(base64Audio.length / CHUNK_SIZE);
+                const uploadId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
+                console.log(`Uploading in ${totalChunks} chunks...`);
+
+                for (let i = 0; i < totalChunks; i++) {
+                    const start = i * CHUNK_SIZE;
+                    const end = Math.min(start + CHUNK_SIZE, base64Audio.length);
+                    const chunk = base64Audio.slice(start, end);
+
+                    progressLabel.textContent = `Uploading chunk ${i + 1}/${totalChunks}...`;
+                    progressFill.style.width = `${40 + (i / totalChunks) * 40}%`;
+
+                    const chunkResponse = await fetch('/upload-chunk', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            uploadId: uploadId,
+                            chunkIndex: i,
+                            totalChunks: totalChunks,
+                            data: chunk
+                        })
+                    });
+
+                    if (!chunkResponse.ok) {
+                        throw new Error(`Failed to upload chunk ${i + 1}`);
+                    }
+                }
+
+                // All chunks uploaded, now process
                 progressLabel.textContent = 'Transcribing...';
                 progressFill.style.width = '80%';
 
-                const response = await fetch('/transcribe', {
+                const response = await fetch('/process-upload', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ audio: base64Audio })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uploadId: uploadId })
                 });
 
                 if (!response.ok) {

@@ -219,6 +219,111 @@ const init = () => {
         });
     };
 
+    // --- Audio Compression Helper ---
+    // Extracts audio, converts to 16kHz mono WAV (optimal for Whisper, small size)
+    const compressAudio = async (file, onProgress) => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                onProgress?.('Decoding audio...');
+
+                // Create AudioContext for processing
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                    sampleRate: 16000 // Whisper's native sample rate
+                });
+
+                // Read file as ArrayBuffer
+                const arrayBuffer = await file.arrayBuffer();
+
+                // Decode audio data
+                onProgress?.('Processing audio...');
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                // Convert to mono by averaging channels
+                const numberOfChannels = audioBuffer.numberOfChannels;
+                const length = audioBuffer.length;
+                const sampleRate = audioBuffer.sampleRate;
+
+                // Create offline context at 16kHz mono
+                const offlineContext = new OfflineAudioContext(1, length * (16000 / sampleRate), 16000);
+
+                // Create buffer source
+                const source = offlineContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(offlineContext.destination);
+                source.start(0);
+
+                // Render resampled audio
+                onProgress?.('Compressing audio...');
+                const renderedBuffer = await offlineContext.startRendering();
+
+                // Convert to WAV
+                const wavBlob = audioBufferToWav(renderedBuffer);
+
+                // Log compression stats
+                const originalSize = file.size;
+                const compressedSize = wavBlob.size;
+                console.log(`Audio compressed: ${(originalSize / 1024 / 1024).toFixed(2)}MB → ${(compressedSize / 1024 / 1024).toFixed(2)}MB`);
+
+                audioContext.close();
+                resolve(wavBlob);
+
+            } catch (error) {
+                console.error('Audio compression failed:', error);
+                reject(error);
+            }
+        });
+    };
+
+    // Helper: Convert AudioBuffer to WAV Blob
+    const audioBufferToWav = (buffer) => {
+        const numChannels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        const format = 1; // PCM
+        const bitDepth = 16;
+
+        const bytesPerSample = bitDepth / 8;
+        const blockAlign = numChannels * bytesPerSample;
+
+        const data = buffer.getChannelData(0);
+        const samples = data.length;
+        const dataLength = samples * blockAlign;
+        const bufferLength = 44 + dataLength;
+
+        const arrayBuffer = new ArrayBuffer(bufferLength);
+        const view = new DataView(arrayBuffer);
+
+        // WAV header
+        const writeString = (offset, string) => {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        };
+
+        writeString(0, 'RIFF');
+        view.setUint32(4, bufferLength - 8, true);
+        writeString(8, 'WAVE');
+        writeString(12, 'fmt ');
+        view.setUint32(16, 16, true); // fmt chunk size
+        view.setUint16(20, format, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * blockAlign, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, bitDepth, true);
+        writeString(36, 'data');
+        view.setUint32(40, dataLength, true);
+
+        // Write audio data
+        let offset = 44;
+        for (let i = 0; i < samples; i++) {
+            const sample = Math.max(-1, Math.min(1, data[i]));
+            view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+            offset += 2;
+        }
+
+        return new Blob([arrayBuffer], { type: 'audio/wav' });
+    };
+
     // --- Transcriber Logic ---
     const uploadArea = document.getElementById('upload-area');
     const audioInput = document.getElementById('audio-input');
@@ -317,13 +422,26 @@ const init = () => {
             transcriptText.value = '';
 
             try {
-                progressLabel.textContent = 'Uploading & Transcribing... (Server-side Processing)';
-                progressFill.style.width = '100%';
-                progressFill.classList.add('pulse'); // Add a CSS animation if we had one, or just static full
+                progressLabel.textContent = 'Preparing audio...';
+                progressFill.style.width = '30%';
 
-                // Create FormData
+                // Compress audio before upload (extracts audio from video, resamples to 16kHz mono)
+                let audioToUpload;
+                try {
+                    audioToUpload = await compressAudio(currentFile, (status) => {
+                        progressLabel.textContent = status;
+                    });
+                    progressLabel.textContent = 'Uploading compressed audio...';
+                    progressFill.style.width = '50%';
+                } catch (compressionError) {
+                    console.warn('Compression failed, using original file:', compressionError);
+                    audioToUpload = currentFile; // Fallback to original
+                    progressLabel.textContent = 'Uploading original file...';
+                }
+
+                // Create FormData with compressed audio
                 const formData = new FormData();
-                formData.append('audio', currentFile);
+                formData.append('audio', audioToUpload, 'audio.wav');
 
                 // Send to Server
                 const response = await fetch('/transcribe', {

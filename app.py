@@ -58,27 +58,55 @@ def transcribe_audio():
         with os.fdopen(fd, 'wb') as tmp:
             file.save(tmp)
         
-        # Transcribe using faster-whisper
-        # segments is a generator, so we iterate to get result
-        segments, info = model.transcribe(temp_path, beam_size=1)
-        
         from flask import Response, stream_with_context
+        import threading
+        import queue
+        import time
+
+        # Queue to communicate between threads
+        result_queue = queue.Queue()
+        
+        def transcribe_worker():
+            """Background worker that transcribes and puts results in queue."""
+            try:
+                segments, info = model.transcribe(temp_path, beam_size=1)
+                for segment in segments:
+                    result_queue.put(('segment', segment.text))
+                result_queue.put(('done', None))
+            except Exception as e:
+                result_queue.put(('error', str(e)))
+            finally:
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
 
         def generate():
-            try:
-                for segment in segments:
-                    yield segment.text
-                # Cleanup after generation is done
-                os.remove(temp_path)
-            except Exception as e:
-                print(f"Streaming error: {e}")
-                # We can't really change the status code now, but we can log it
-                # or yield an error marker if we defined a protocol.
-                # For now, just stop.
-                try: 
-                    os.remove(temp_path)
-                except: 
-                    pass
+            """Generator that yields heartbeats and transcription results."""
+            # Start transcription in background thread
+            worker = threading.Thread(target=transcribe_worker)
+            worker.start()
+            
+            # Send initial message
+            yield "⏳ Processing...\n"
+            
+            while True:
+                try:
+                    # Wait for result with timeout (send heartbeat if nothing received)
+                    msg_type, data = result_queue.get(timeout=5)
+                    
+                    if msg_type == 'segment':
+                        yield data
+                    elif msg_type == 'done':
+                        break
+                    elif msg_type == 'error':
+                        yield f"\n❌ Error: {data}"
+                        break
+                except queue.Empty:
+                    # No result yet, send a heartbeat to keep connection alive
+                    yield " "  # Invisible heartbeat
+            
+            worker.join(timeout=1)
         
         return Response(stream_with_context(generate()), mimetype='text/plain')
 

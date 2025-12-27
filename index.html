@@ -11,8 +11,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=43">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 
 <body>
@@ -332,8 +336,8 @@
                                 </div>
                                 <!-- Navigation Hook -->
                                 <div class="section-hook">
-                                    <p>Let's solve your data problems <i class="fas fa-arrow-right"></i> <a href="#"
-                                            class="nav-trigger" data-target="consulting">Book Data Consulting 🤝</a></p>
+                                    <p>Let's solve your problems <i class="fas fa-arrow-right"></i> <a href="#"
+                                            class="nav-trigger" data-target="consulting">Book Consulting 🤝</a></p>
                                 </div>
                             </div>
                         </div>
@@ -366,18 +370,312 @@
             <section id="consulting" class="view-section" style="display: none;">
                 <h2>1-on-1 Consulting</h2>
                 <div class="consulting-card">
-                    <div style="text-align: center; width: 100%; color: var(--text-muted);">
-                        <p>Consulting slots opening soon...</p>
+                    <div class="consulting-content">
+                        <h3>Join the Private Waitlist</h3>
+                        <p>I’ll soon be opening a limited number of 1-to-1 consulting slots.</p>
+
+                        <div class="consulting-details">
+                            <h4>Who it’s for</h4>
+                            <p>People who want support with:</p>
+                            <ul class="consulting-list">
+                                <li><i class="fas fa-check"></i> Breaking into data or tech</li>
+                                <li><i class="fas fa-check"></i> Upskilling (SQL, Python, analytics, automation)</li>
+                                <li><i class="fas fa-check"></i> Building a website and/or developing a web app</li>
+                            </ul>
+
+                            <h4>Be first to hear</h4>
+                            <p>Join the waitlist to be notified when slots go live</p>
+                        </div>
+
+                        <form id="waitlist-form" class="waitlist-form">
+                            <input type="email" placeholder="Enter your email address" required>
+                            <button type="submit" class="filter-btn">Join</button>
+                        </form>
+                        <small class="spam-notice">No spam - just an update when slots open.</small>
+
+                        <div id="waitlist-success"
+                            style="display: none; margin-top: 15px; color: #4caf50; font-weight: 600;">
+                            <i class="fas fa-check-circle"></i> You're on the list! Keep an eye on your inbox.
+                        </div>
                     </div>
                 </div>
             </section>
 
             <!-- SHOP View -->
             <section id="shop" class="view-section" style="display: none;">
-                <h2>Digital Shop</h2>
-                <div class="shop-grid">
-                    <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
-                        <p>Digital products coming soon...</p>
+                <div class="shop-header"
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+                    <h2 style="margin: 0;">Digital Shop</h2>
+                </div>
+
+                <!-- Feed Container -->
+                <div class="shop-feed">
+                    <!-- Only the Transcriber Tool -->
+                    <article class="feed-item nav-trigger" data-target="transcriber-tool">
+                        <div class="feed-content">
+                            <div class="feed-author">
+                                <span class="author-name">Leon</span>
+                            </div>
+                            <h3 class="feed-title nav-trigger" data-target="transcriber-tool">AI Audio Transcriber
+                            </h3>
+                            <p class="feed-desc">Turn lectures, meetings, interviews or calls into accurate transcripts
+                                all on your device. No cloud uploads, no subscriptions, just one time ownership. Perfect
+                                for students, professionals, podcasters and anyone handling confidential audio.</p>
+                            <div class="feed-footer">
+                                <span class="feed-date">Dec 26</span>
+                                <span class="feed-stat"><i class="far fa-heart"></i> <span class="like-count"
+                                        id="shop-transcriber-likes">0</span></span>
+                                <span class="feed-stat"><i class="far fa-comment"></i> <span class="comment-count"
+                                        id="shop-transcriber-comments">0</span></span>
+                            </div>
+                        </div>
+                        <div class="feed-thumbnail premium-thumb nav-trigger" data-target="transcriber-tool">
+                            <i class="fas fa-microphone-alt"></i>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- TRANSCRIBER TOOL View - App Store Style -->
+            <section id="transcriber-tool" class="view-section" style="display: none;">
+                <button class="filter-btn nav-trigger" data-target="shop" style="margin-bottom: 20px;">
+                    <i class="fas fa-arrow-left"></i> Back to Shop
+                </button>
+
+                <!-- App Store Header -->
+                <div class="app-store-header">
+                    <div class="app-icon">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <div class="app-info">
+                        <h1>AI Audio Transcriber</h1>
+                        <p class="app-author">by Leon</p>
+                        <div class="app-rating">
+                            <span class="rating-count">
+                                <i class="far fa-heart"></i> 0 &nbsp;
+                                <i class="far fa-comment"></i> 0
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Action Buttons -->
+                <div class="app-actions">
+                    <button class="filter-btn btn-try"
+                        onclick="document.getElementById('app-transcriber').scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-play"></i> <span>Try in Browser</span>
+                    </button>
+                    <button class="filter-btn btn-download" onclick="alert('Desktop Pro App coming soon! 🚀')">
+                        <i class="fas fa-download"></i> <span>Download Pro App</span>
+                    </button>
+                </div>
+
+
+
+                <!-- Description -->
+                <div class="app-section">
+                    <h3>About</h3>
+                    <p>Turn lectures, meetings, interviews or calls into accurate transcripts all on your device. No
+                        cloud uploads, no subscriptions, just one time ownership. Perfect for students, professionals,
+                        podcasters and anyone handling confidential audio.
+
+                        <br><br>Try free in your browser!
+                    </p>
+                    <ul>
+                        <li>Transcribe audio files up to 10 minutes instantly</li>
+                        <li>Works directly in your browser, no installation required</li>
+                        <li>Ideal for testing the AI before upgrading</li>
+                    </ul>
+                    <p>Upload a file to try it:
+                        Drag and Drop Audio or click to browse (MP3, WAV, M4A)</p>
+
+                    <!-- Feature Badges -->
+                    <div class="feature-badges">
+                        <div class="badge-item">
+                            <i class="fas fa-lock"></i> Works Offline
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-gift"></i> Free
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-check-circle"></i> No Subscriptions
+                        </div>
+                        <div class="badge-item">
+                            <i class="fas fa-infinity"></i> Unlimited Files
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Why Choose Us / Competitive Advantage -->
+                <div class="app-section">
+                    <h3>Why Choose Us?</h3>
+                    <ul>
+                        <li>✅ Fully offline so your audio never leaves your device, perfect for your privacy</li>
+                        <li>✅ No subscriptions, one-time payment, unlimited transcription</li>
+                        <li>✅ Handles full-length recordings effortlessly</li>
+                        <li>✅ Faster and more accurate AI transcription</li>
+                        <li>✅ Export transcripts in .txt, .srt or .vtt for editing and captions</li>
+                    </ul>
+                    <p>Most transcription tools (like Otter) require cloud uploads, monthly fees or limit file length.
+                        With
+                        Desktop
+                        Pro, you get everything you need in one simple app.</p>
+                </div>
+
+                <!-- Free vs Pro Comparison -->
+                <div class="app-section">
+                    <h3>Free vs Pro</h3>
+                    <div class="comparison-table">
+                        <div class="comparison-header">
+                            <div class="feature-col">Feature</div>
+                            <div class="free-col">Browser (Free)</div>
+                            <div class="pro-col">Desktop Pro</div>
+                        </div>
+                        <div class="comparison-row">
+                            <div class="feature-col">Audio Length</div>
+                            <div class="free-col">≤ 10 minutes</div>
+                            <div class="pro-col">✅ Unlimited (more than 10 minutes)</div>
+                        </div>
+                        <div class="comparison-row">
+                            <div class="feature-col">Free Long File Trials</div>
+                            <div class="free-col">❌</div>
+                            <div class="pro-col">✅ First 1 to 2 long uploads free</div>
+                        </div>
+                        <div class="comparison-row">
+                            <div class="feature-col">Speed</div>
+                            <div class="free-col">Moderate</div>
+                            <div class="pro-col">✅ Fast (GPU acceleration)</div>
+                        </div>
+                        <div class="comparison-row">
+                            <div class="feature-col">Works Offline</div>
+                            <div class="free-col">❌</div>
+                            <div class="pro-col">✅ Fully offline, your audio never leaves your device</div>
+                        </div>
+                        <div class="comparison-row">
+                            <div class="feature-col">Export Formats</div>
+                            <div class="free-col">.txt</div>
+                            <div class="pro-col">✅ .txt, .srt, .vtt</div>
+                        </div>
+                        <div class="comparison-row highlight">
+                            <div class="feature-col">Price</div>
+                            <div class="free-col"><strong>Free</strong></div>
+                            <div class="pro-col"><strong>£9.99</strong> one time (normally £14.99, save £5 today!)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Embedded Transcriber UI -->
+                <div class="app-section" id="app-transcriber">
+                    <h3>Try It Now</h3>
+                    <div class="transcriber-container">
+                        <div class="upload-area" id="upload-area">
+                            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <h3>Drag & Drop Audio</h3>
+                            <p>or click to browse (MP3, WAV, M4A)</p>
+                            <small style="color: var(--text-muted); margin-top: 10px; display: block;">Free version: up
+                                to 10 minutes</small>
+                            <input type="file" id="audio-input" accept="audio/*" hidden>
+                        </div>
+
+                        <div class="file-info" id="file-info" style="display: none;">
+                            <span id="file-name">filename.mp3</span>
+                            <button id="remove-file"><i class="fas fa-times"></i></button>
+                        </div>
+
+                        <button id="transcribe-btn" class="filter-btn" disabled>Start Transcription ✨</button>
+
+                        <!-- Progress -->
+                        <div class="progress-wrapper" id="progress-wrapper" style="display: none;">
+                            <div class="progress-label">Loading Model...</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Result -->
+                        <div class="transcription-result" id="result-area" style="display: none;">
+                            <h3>Transcript</h3>
+                            <textarea id="transcript-text" readonly></textarea>
+                            <div class="result-actions">
+                                <button class="action-btn" id="copy-btn"><i class="fas fa-copy"></i> Copy</button>
+                                <button class="action-btn" id="download-btn"><i class="fas fa-download"></i>
+                                    Download</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Section -->
+                <div class="app-section">
+                    <h3>FAQ</h3>
+                    <div class="faq-table">
+                        <div class="faq-header">
+                            <div class="question-col">Question</div>
+                            <div class="answer-col">Suggested Answer</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">Does this work on my laptop?</div>
+                            <div class="answer-col">Yes, it supports Windows. Mac version coming soon.</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">Do I need internet for Desktop Pro?</div>
+                            <div class="answer-col">No, Desktop Pro works fully offline.</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">How fast is transcription?</div>
+                            <div class="answer-col">On average, 1 hour of audio transcribes in 5–8 minutes (faster with
+                                GPU).</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">Is there a subscription?</div>
+                            <div class="answer-col">No, Desktop Pro is a one-time payment, yours forever.</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">Is my audio private?</div>
+                            <div class="answer-col">Absolutely. Everything runs locally; your audio never leaves your
+                                device.</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">What file formats are supported?</div>
+                            <div class="answer-col">MP3, WAV, M4A for upload; export as .txt, .srt, .vtt.</div>
+                        </div>
+                        <div class="faq-row">
+                            <div class="question-col">Can I try longer files before paying?</div>
+                            <div class="answer-col">Yes, Desktop Pro gives 1–2 free long file trials before you need to
+                                unlock unlimited access.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Section -->
+                <div class="app-section">
+                    <h3>Rate & Review</h3>
+
+                    <!-- Review Form -->
+                    <div class="review-form-container"
+                        style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 30px;">
+
+                        <input type="text" id="review-name" placeholder="Your Name"
+                            style="width: 100%; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 5px; font-size: 1rem;">
+                        <textarea id="review-text" placeholder="Write a review..." rows="3"
+                            style="width: 100%; padding: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 5px; font-family: inherit; font-size: 1rem;"></textarea>
+
+                        <div class="submit-row" style="display: flex; align-items: center; gap: 15px;">
+                            <button id="submit-review-btn" class="filter-btn" style="flex-grow: 1;">Submit
+                                Review</button>
+                            <!-- Like Toggle (Icon Only) -->
+                            <div class="like-input-wrapper" style="cursor: pointer; padding: 10px;">
+                                <i id="like-toggle" class="far fa-heart"
+                                    style="font-size: 1.5rem; transition: all 0.2s; color: #fff;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>User Reviews</h3>
+                    <div id="reviews-list" class="reviews-list">
+                        <p style="color: var(--text-muted); text-align: center;">Loading reviews...</p>
                     </div>
                 </div>
             </section>
@@ -397,8 +695,8 @@
             <!-- Footer -->
             <footer class="site-footer">
                 <p>&copy; 2025 Leon's Data Tech Hub. All rights reserved.</p>
-                <p style="margin-top: 5px; font-size: 0.8rem;">Love this site? <a href="#" class="nav-trigger"
-                        data-target="consulting"
+                <p class="footer-promo" style="margin-top: 5px; font-size: 0.8rem;">Love this site? <a href="#"
+                        class="nav-trigger" data-target="consulting"
                         style="color: #fff; text-decoration: none; font-size: inherit; font-weight: normal;">Get a
                         Website Like This 🎨</a> to
                     promote your brand.</p>
@@ -407,7 +705,7 @@
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>

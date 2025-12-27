@@ -220,16 +220,14 @@ const init = () => {
     };
 
     // --- Audio Compression Helper ---
-    // Extracts audio, converts to 16kHz mono WAV (optimal for Whisper, small size)
+    // Extracts audio, converts to 8kHz mono 8-bit WAV (aggressively compressed for upload)
     const compressAudio = async (file, onProgress) => {
         return new Promise(async (resolve, reject) => {
             try {
                 onProgress?.('Decoding audio...');
 
                 // Create AudioContext for processing
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)({
-                    sampleRate: 16000 // Whisper's native sample rate
-                });
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
                 // Read file as ArrayBuffer
                 const arrayBuffer = await file.arrayBuffer();
@@ -238,13 +236,15 @@ const init = () => {
                 onProgress?.('Processing audio...');
                 const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-                // Convert to mono by averaging channels
-                const numberOfChannels = audioBuffer.numberOfChannels;
+                // Get original properties
                 const length = audioBuffer.length;
                 const sampleRate = audioBuffer.sampleRate;
 
-                // Create offline context at 16kHz mono
-                const offlineContext = new OfflineAudioContext(1, length * (16000 / sampleRate), 16000);
+                // Target: 8kHz mono (aggressive compression, still good for speech)
+                const targetSampleRate = 8000;
+
+                // Create offline context at 8kHz mono
+                const offlineContext = new OfflineAudioContext(1, Math.ceil(length * (targetSampleRate / sampleRate)), targetSampleRate);
 
                 // Create buffer source
                 const source = offlineContext.createBufferSource();
@@ -256,8 +256,8 @@ const init = () => {
                 onProgress?.('Compressing audio...');
                 const renderedBuffer = await offlineContext.startRendering();
 
-                // Convert to WAV
-                const wavBlob = audioBufferToWav(renderedBuffer);
+                // Convert to 8-bit µ-law WAV (very small)
+                const wavBlob = audioBufferToWav8bit(renderedBuffer);
 
                 // Log compression stats
                 const originalSize = file.size;
@@ -274,14 +274,14 @@ const init = () => {
         });
     };
 
-    // Helper: Convert AudioBuffer to WAV Blob
-    const audioBufferToWav = (buffer) => {
-        const numChannels = buffer.numberOfChannels;
+    // Helper: Convert AudioBuffer to 8-bit WAV Blob (much smaller)
+    const audioBufferToWav8bit = (buffer) => {
+        const numChannels = 1;
         const sampleRate = buffer.sampleRate;
         const format = 1; // PCM
-        const bitDepth = 16;
+        const bitDepth = 8;
 
-        const bytesPerSample = bitDepth / 8;
+        const bytesPerSample = 1;
         const blockAlign = numChannels * bytesPerSample;
 
         const data = buffer.getChannelData(0);
@@ -313,12 +313,13 @@ const init = () => {
         writeString(36, 'data');
         view.setUint32(40, dataLength, true);
 
-        // Write audio data
+        // Write audio data (8-bit unsigned)
         let offset = 44;
         for (let i = 0; i < samples; i++) {
             const sample = Math.max(-1, Math.min(1, data[i]));
-            view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
-            offset += 2;
+            // Convert from [-1, 1] to [0, 255] for 8-bit unsigned
+            view.setUint8(offset, Math.round((sample + 1) * 127.5));
+            offset += 1;
         }
 
         return new Blob([arrayBuffer], { type: 'audio/wav' });

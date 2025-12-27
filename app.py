@@ -7,10 +7,32 @@ app = Flask(__name__, static_folder='.')
 
 # Load Whisper model using faster-whisper (optimized for CPU/low-memory)
 # compute_type="int8" reduces memory usage significantly while maintaining accuracy
+# Check for FFMPEG
+import shutil
+import gc
+
+def check_ffmpeg():
+    if not shutil.which("ffmpeg"):
+        print("CRITICAL: FFMPEG not found! processing will fail.")
+        return False
+    return True
+
 print("Loading Whisper model...")
 from faster_whisper import WhisperModel
-model = WhisperModel("base", device="cpu", compute_type="int8")
-print("Whisper model loaded!")
+
+# Ensure we have enough RAM
+gc.collect()
+
+try:
+    if check_ffmpeg():
+        model = WhisperModel("base", device="cpu", compute_type="int8")
+        print("Whisper model loaded!")
+    else:
+        model = None
+        print("Model loading skipped due to missing FFMPEG.")
+except Exception as e:
+    print(f"CRITICAL ERROR loading model: {e}")
+    model = None
 
 @app.route('/')
 def index():
@@ -20,6 +42,9 @@ def index():
 @app.route('/transcribe', methods=['POST'])
 def transcribe_audio():
     """Handle audio file uploads and transcription."""
+    if model is None:
+        return jsonify({'error': 'Server Configuration Error: FFMPEG not found or Model failed to load.'}), 500
+
     if 'audio' not in request.files:
         return jsonify({'error': 'No audio file provided'}), 400
     

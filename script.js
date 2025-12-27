@@ -440,13 +440,28 @@ const init = () => {
                 }
 
                 // Create FormData with compressed audio
-                const formData = new FormData();
-                formData.append('audio', audioToUpload, 'audio.wav');
+                progressLabel.textContent = 'Uploading to server...';
+                progressFill.style.width = '60%';
 
-                // Send to Server
+                // Convert blob to base64 for more reliable upload
+                const arrayBuffer = await audioToUpload.arrayBuffer();
+                const base64Audio = btoa(
+                    new Uint8Array(arrayBuffer)
+                        .reduce((data, byte) => data + String.fromCharCode(byte), '')
+                );
+
+                console.log(`Uploading ${(base64Audio.length / 1024 / 1024).toFixed(2)}MB base64...`);
+
+                // Send as JSON (more reliable than multipart on some proxies)
+                progressLabel.textContent = 'Transcribing...';
+                progressFill.style.width = '80%';
+
                 const response = await fetch('/transcribe', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ audio: base64Audio })
                 });
 
                 if (!response.ok) {

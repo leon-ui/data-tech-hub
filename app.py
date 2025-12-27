@@ -68,18 +68,36 @@ def transcribe_audio():
     if model is None:
         return jsonify({'error': 'Server Configuration Error: FFMPEG not found or Model failed to load.'}), 500
 
-    if 'audio' not in request.files:
-        return jsonify({'error': 'No audio file provided'}), 400
+    import base64
     
-    file = request.files['audio']
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
     try:
-        # Save to a temporary file
-        fd, temp_path = tempfile.mkstemp(suffix=os.path.splitext(file.filename)[1])
-        with os.fdopen(fd, 'wb') as tmp:
-            file.save(tmp)
+        # Check if it's JSON (base64) or form data
+        if request.is_json:
+            # Base64 encoded audio
+            data = request.get_json()
+            if 'audio' not in data:
+                return jsonify({'error': 'No audio data provided'}), 400
+            
+            audio_bytes = base64.b64decode(data['audio'])
+            print(f"Received base64 audio: {len(audio_bytes) / 1024 / 1024:.2f}MB", flush=True)
+            
+            # Save to temp file
+            fd, temp_path = tempfile.mkstemp(suffix='.wav')
+            with os.fdopen(fd, 'wb') as tmp:
+                tmp.write(audio_bytes)
+        else:
+            # Multipart form data (legacy)
+            if 'audio' not in request.files:
+                return jsonify({'error': 'No audio file provided'}), 400
+            
+            file = request.files['audio']
+            if file.filename == '':
+                return jsonify({'error': 'No selected file'}), 400
+            
+            # Save to a temporary file
+            fd, temp_path = tempfile.mkstemp(suffix=os.path.splitext(file.filename)[1])
+            with os.fdopen(fd, 'wb') as tmp:
+                file.save(tmp)
         
         from flask import Response, stream_with_context
         import threading

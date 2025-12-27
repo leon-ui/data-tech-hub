@@ -19,5 +19,5 @@ COPY . .
 # Expose port (Render sets PORT env var, but good practice to document)
 EXPOSE 10000
 
-# Run with Gunicorn
-CMD gunicorn app:app
+# Run with Gunicorn using our config file (timeout, workers, etc.)
+CMD ["gunicorn", "--config", "gunicorn.conf.py", "app:app"]

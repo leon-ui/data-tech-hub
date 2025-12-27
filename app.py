@@ -1,9 +1,23 @@
 from flask import Flask, send_from_directory, request, jsonify
+from flask_cors import CORS
 import os
 import tempfile
+import sys
 
+# Force stdout to be unbuffered so logs appear immediately
+sys.stdout = sys.stdout
 
 app = Flask(__name__, static_folder='.')
+
+# Enable CORS for all routes (allows cross-origin requests)
+CORS(app)
+
+# Log every request for debugging
+@app.before_request
+def log_request():
+    print(f"INCOMING REQUEST: {request.method} {request.path}", flush=True)
+    if request.content_length:
+        print(f"  Content-Length: {request.content_length}", flush=True)
 
 # Load Whisper model using faster-whisper (optimized for CPU/low-memory)
 # compute_type="int8" reduces memory usage significantly while maintaining accuracy

@@ -1,13 +1,15 @@
 from flask import Flask, send_from_directory, request, jsonify
 import os
 import tempfile
-import whisper
+
 
 app = Flask(__name__, static_folder='.')
 
-# Load Whisper model at startup (using 'base' to match user's preference/speed)
+# Load Whisper model using faster-whisper (optimized for CPU/low-memory)
+# compute_type="int8" reduces memory usage significantly while maintaining accuracy
 print("Loading Whisper model...")
-model = whisper.load_model("base")
+from faster_whisper import WhisperModel
+model = WhisperModel("base", device="cpu", compute_type="int8")
 print("Whisper model loaded!")
 
 @app.route('/')
@@ -31,14 +33,17 @@ def transcribe_audio():
         with os.fdopen(fd, 'wb') as tmp:
             file.save(tmp)
         
-        # Transcribe using Whisper
-        # Matching leon-dth-transcriber.py exactly (auto-detect language)
-        result = model.transcribe(temp_path) 
+        # Transcribe using faster-whisper
+        # segments is a generator, so we iterate to get result
+        segments, info = model.transcribe(temp_path, beam_size=5)
+        
+        # Combine all segments into one text
+        text = "".join([segment.text for segment in segments]) 
         
         # Clean up
         os.remove(temp_path)
         
-        return jsonify({'text': result['text']})
+        return jsonify({'text': text.strip()})
 
     except Exception as e:
         print(f"Transcription error: {e}")
